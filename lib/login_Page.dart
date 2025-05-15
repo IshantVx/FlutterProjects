@@ -1,4 +1,8 @@
+
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:newflutterproject/SignUpPage.dart';
 class LonginScreen extends StatefulWidget {
   const LonginScreen({super.key});
 
@@ -7,7 +11,8 @@ class LonginScreen extends StatefulWidget {
 }
 
 class _LonginScreenState extends State<LonginScreen> {
-  get onPressed => null;
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +47,7 @@ class _LonginScreenState extends State<LonginScreen> {
 
 
                 TextField(
+                  controller: userNameController,
                   decoration: InputDecoration(
                     hintText: "Enter your Email/Phone Number",
                     hintStyle: TextStyle(
@@ -56,6 +62,8 @@ class _LonginScreenState extends State<LonginScreen> {
                   child: Text("Password"),
                 ),
                 TextField(
+                  controller: passwordController,
+                  obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Enter your password",
                     hintStyle: TextStyle(
@@ -74,10 +82,24 @@ class _LonginScreenState extends State<LonginScreen> {
                        child: Text("Cancel")),
                    SizedBox(width: 20),
                    ElevatedButton(
-                       onPressed: (){},
+                       onPressed: (){
+                         Fluttertoast.showToast(msg: "Your Credential have been taken");
+                       },
                        child: Text("Login"))
                  ],
-               )
+               ),
+                SizedBox(height: 20,),
+                GestureDetector(
+                  onTap:(){
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context)=>SignUpPage()));
+                  },
+                  child:  Center(
+                    child: Text("New user"),
+                  ),
+                )
               ],
 
             ),
