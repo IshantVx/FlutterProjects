@@ -14,6 +14,16 @@ class _LonginScreenState extends State<LonginScreen> {
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  void _validation(){
+    if(userNameController.text.isEmpty){
+      Fluttertoast.showToast(msg: "Please Enter the email");
+    }else if(passwordController.text.isEmpty){
+      Fluttertoast.showToast(msg: "Please Enter the Password");
+    }else{
+      Fluttertoast.showToast(msg: userNameController.text);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -84,6 +94,7 @@ class _LonginScreenState extends State<LonginScreen> {
                    ElevatedButton(
                        onPressed: (){
                          Fluttertoast.showToast(msg: "Your Credential have been taken");
+                         _validation();
                        },
                        child: Text("Login"))
                  ],
