@@ -1,11 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newflutterproject/login_Page.dart';
-import 'package:newflutterproject/productPage.dart';
 
 class HomePage extends StatefulWidget {
-
 
 
 
@@ -77,28 +74,15 @@ class _HomePageState extends State<HomePage> {
                 onTap: (){
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.sell),
-                title: const Text("Seller"),
-                onTap:() {
-                  Navigator.push(context,MaterialPageRoute(builder: (context)=> productPage()));
-                },
-              )
             ],
           ),
-
             ),
 
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text("Log Out"),
-              onTap: () async{
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=> LonginScreen()), (route)=>false );
-
               },
             ),
-
           ],
 
         ),
