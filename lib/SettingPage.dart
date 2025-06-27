@@ -16,14 +16,14 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
       body: Column(
         children: [
-          Center(
-            child: Text("this is a setting page"),
-          ),
+          Center(child: Text("this is a setting page")),
           SwitchListTile(
-              title: const Text("Dark Mode"),
-              value: themeProvider.isDarkMode, onChanged: (value){
-                themeProvider.toggleTheme(value);
-          })
+            title: const Text("Dark Mode"),
+            value: themeProvider.isDarkMode,
+            onChanged: (value) {
+              themeProvider.toggleTheme(value);
+            },
+          ),
         ],
       ),
     );

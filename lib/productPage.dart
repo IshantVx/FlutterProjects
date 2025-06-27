@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,28 +14,12 @@ class productPage extends StatefulWidget {
 }
 
 class _productPageState extends State<productPage> {
-
   TextEditingController nameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   String? baseImage;
 
 
-// product validation function that validates if user have leaves blank text field or nah it send the data to the firestore database
-  void productValidation(){
-    if(nameController.text.isEmpty){
-      Fluttertoast.showToast(msg: "Please enter the product name");
-    }else if(priceController.text.isEmpty){
-      Fluttertoast.showToast(msg: "Please enter the Price");
-    }else if(descriptionController.text.isEmpty){
-      Fluttertoast.showToast(msg: "Please enter the product description");
-    }else{
-      createProduct(name: nameController.text.trim(),
-          price: priceController.text.trim(),
-          description: descriptionController.text.trim(),
-          baseImage: baseImage!);
-    }
-  }
   // it is function that store the data in firestore if written correctly
 
   Future<void> createProduct({
@@ -44,33 +27,50 @@ class _productPageState extends State<productPage> {
     required String price,
     required String description,
     required String baseImage,
-})async{
-    try{
+  }) async {
+    try {
       await FirebaseFirestore.instance.collection('product').add({
         'name': name,
         'price': price,
         'description': description,
         'image': baseImage,
       });
-    }catch(e){
+    } catch (e) {
       Fluttertoast.showToast(msg: "Error creating product$e");
     }
   }
-  // is the function to store the image in string format
-  Future<void> pickImage(ImageSource source ) async{
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source, imageQuality: 70);
-    if(pickedFile !=null){
+
+  // is the function will pick an image and compressed it store that into String? baseImage;
+  Future<void> pickImage(ImageSource source) async {
+    final picker = ImagePicker();// it is a flutter plugin used to open camera or gallery
+    final pickedFile = await picker.pickImage(source: source, imageQuality: 70); // it will open the UI to pick image and store that into pickedFile
+    if (pickedFile != null) {// if the image will picked than it will encode in string and store that into compressed
       final compressed = await FlutterImageCompress.compressWithFile(
         pickedFile.path,
         quality: 70,
       );
-      if(compressed != null){
+      if (compressed != null) { // if compressed image is in the format of string it till sta
         setState(() {
           baseImage = base64Encode(compressed);
         });
       }
-
+    }
+  }
+  // product validation function that validates if user have leaves blank text field or nah it send the data to the firestore database
+  void productValidation() {
+    if (nameController.text.isEmpty) {
+      Fluttertoast.showToast(msg: "Please enter the product name");
+    } else if (priceController.text.isEmpty) {
+      Fluttertoast.showToast(msg: "Please enter the Price");
+    } else if (descriptionController.text.isEmpty) {
+      Fluttertoast.showToast(msg: "Please enter the product description");
+    } else {
+      createProduct(
+        name: nameController.text.trim(),
+        price: priceController.text.trim(),
+        description: descriptionController.text.trim(),
+        baseImage: baseImage!,
+      );
     }
   }
 
@@ -80,61 +80,55 @@ class _productPageState extends State<productPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text("List your Product"),
-          leading: IconButton(onPressed: (){
-            Navigator.pop(context);
-          }, icon: Icon(Icons.arrow_back_ios)),
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text("Product Name"),
               ),
               TextField(
                 controller: nameController,
-                  decoration: InputDecoration(
-                      hintText: "Product Name",
-                      hintStyle: TextStyle(
-                          color: Colors.black38
-                      ),
-                      border: OutlineInputBorder()
-                  )
+                decoration: InputDecoration(
+                  hintText: "Product Name",
+                  hintStyle: TextStyle(color: Colors.black38),
+                  border: OutlineInputBorder(),
+                ),
               ),
-              SizedBox(height: 16,),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Price"),
-              ),
+              SizedBox(height: 16),
+              Align(alignment: Alignment.centerLeft, child: Text("Price")),
               TextField(
                 controller: priceController,
-                  decoration: InputDecoration(
-                      hintText: "Price",
-                      hintStyle: TextStyle(
-                          color: Colors.black38
-                      ),
-                      border: OutlineInputBorder()
-                  )
+                decoration: InputDecoration(
+                  hintText: "Price",
+                  hintStyle: TextStyle(color: Colors.black38),
+                  border: OutlineInputBorder(),
+                ),
               ),
-              SizedBox(height: 16,),
+              SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text("Product Description"),
               ),
               TextField(
                 controller: descriptionController,
-                  decoration: InputDecoration(
-                      hintText: "Description",
-                      hintStyle: TextStyle(
-                          color: Colors.black38
-                      ),
-                      border: OutlineInputBorder()
-                  )
+                decoration: InputDecoration(
+                  hintText: "Description",
+                  hintStyle: TextStyle(color: Colors.black38),
+                  border: OutlineInputBorder(),
+                ),
               ),
 
-              SizedBox(height: 16,),
+              SizedBox(height: 16),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -154,17 +148,23 @@ class _productPageState extends State<productPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text("Cancel")),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancel"),
+                  ),
 
-                  SizedBox(width: 15,),
+                  SizedBox(width: 15),
 
-                  ElevatedButton(onPressed: (){
-                    productValidation();
-                  }, child: Text("Add"))
+                  ElevatedButton(
+                    onPressed: () {
+                      productValidation();
+                    },
+                    child: Text("Add"),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
