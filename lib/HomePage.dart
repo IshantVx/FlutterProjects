@@ -4,6 +4,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:newflutterproject/login_Page.dart';
 import 'package:newflutterproject/productPage.dart';
 
@@ -16,6 +19,36 @@ Map<int, int> _quantities = {};
 class _homePageState extends State<homePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? baseImage;
+
+  Future<void> createProfileImage({
+  required String ProfileBaseImage,
+}) async{
+    try{
+      await FirebaseFirestore.instance.collection("user").doc().collection('Profile Picture').add(
+        {
+          'image': ProfileBaseImage
+        }
+      );
+    }catch(e){
+      Fluttertoast.showToast(msg: "Error creating product$e");
+    }
+}
+  Future<void> pickImage(ImageSource source) async {
+    final picker = ImagePicker();// it is a flutter plugin used to open camera or gallery
+    final pickedFile = await picker.pickImage(source: source, imageQuality: 70); // it will open the UI to pick image and store that into pickedFile
+    if (pickedFile != null) {// if the image will picked than it will encode in string and store that into compressed
+      final compressed = await FlutterImageCompress.compressWithFile(
+        pickedFile.path,
+        quality: 70,
+      );
+      if (compressed != null) { // if compressed image is in the format of string it till sta
+        setState(() {
+          baseImage = base64Encode(compressed);
+        });
+      }
+    }
+  }
 
   //clicked add to cart in homeScreen it will add the product in the cart list
   Future<void> addToCart(Map<String, dynamic> product, int qty, BuildContext rootContext,) async{
@@ -90,16 +123,20 @@ class _homePageState extends State<homePage> {
                         Positioned(
                           bottom: 0,
                           right: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: const Icon(Icons.camera_alt, size: 20),
-                          ),
-                        ),
+                          child: IconButton(onPressed: () => pickImage(ImageSource.gallery)
+                              , icon: const Icon(Icons.camera_alt, size: 20),)
+                          //Container(
+                          //
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.black,
+                          //     shape: BoxShape.circle,
+                          //     border: Border.all(color: Colors.grey),
+                          //   ),
+                          //   padding: const EdgeInsets.all(4),
+                          //   child: const Icon(Icons.camera_alt, size: 20),
+                          //
+                          // ),
+                       )
                       ],
                     ),
                   ),
