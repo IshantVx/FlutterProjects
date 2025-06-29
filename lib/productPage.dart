@@ -79,7 +79,7 @@ class _productPageState extends State<productPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("List your Product"),
+          title: Text("Create your Product"),
           leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
