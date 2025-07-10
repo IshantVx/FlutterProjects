@@ -43,6 +43,9 @@ dependencies:
   logger:
   open_file: ^3.3.2
   intl: ^0.18.1
+  google_sign_in: ^6.2.2
+  flutter_map: ^8.1.1
+  local_auth: ^2.3.0
 
   cloud_firestore:
 
@@ -62,6 +65,7 @@ dependencies:
   flutter_native_splash: ^2.4.6
   pdf: ^3.10.4
   path_provider: ^2.1.1
+  youtube_player_iframe: ^5.2.1
 
 dev_dependencies:
   

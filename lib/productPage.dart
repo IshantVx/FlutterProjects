@@ -14,6 +14,7 @@ class productPage extends StatefulWidget {
 }
 
 class _productPageState extends State<productPage> {
+
   TextEditingController nameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -49,7 +50,7 @@ class _productPageState extends State<productPage> {
         pickedFile.path,
         quality: 70,
       );
-      if (compressed != null) { // if compressed image is in the format of string it till sta
+      if (compressed != null) { // if compressed image not empty it will encode the image and store that into baseImage
         setState(() {
           baseImage = base64Encode(compressed);
         });
@@ -129,7 +130,7 @@ class _productPageState extends State<productPage> {
               ),
 
               SizedBox(height: 16),
-
+              // these are the button of image picker
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:newflutterproject/CartScreen.dart';
 import 'package:newflutterproject/login_Page.dart';
 import 'package:newflutterproject/productPage.dart';
+import 'package:newflutterproject/videoPlayer.dart';
 
 class homePage extends StatefulWidget {
   @override
@@ -19,13 +21,18 @@ Map<int, int> _quantities = {};
 class _homePageState extends State<homePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String? baseImage;
 
+  String? baseImage;
+// adding profile picture
   Future<void> createProfileImage({
   required String ProfileBaseImage,
 }) async{
     try{
-      await FirebaseFirestore.instance.collection("user").doc().collection('Profile Picture').add(
+      await FirebaseFirestore.instance
+          .collection("user")
+          .doc()
+          .collection('Profile Picture')
+          .add(
         {
           'image': ProfileBaseImage
         }
@@ -105,7 +112,7 @@ class _homePageState extends State<homePage> {
       child: Scaffold(
 
         appBar: AppBar(title: Text("Home page"),
-        leading: Icon(Icons.menu, color: Colors.white,),),
+        ),
         drawer: Drawer(
             child: Column(
               children: [
@@ -154,13 +161,22 @@ class _homePageState extends State<homePage> {
                       ListTile(
                         leading: const Icon(Icons.shopping_cart),
                         title: const Text("Cart"),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> CartPage()));
+                        },
                       ),
                       ListTile(
                         leading: const Icon(Icons.sell),
                         title: const Text("Sellers"),
                         onTap: (){
                           Navigator.push(context, MaterialPageRoute(builder: (context)=> productPage()));
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.sell),
+                        title: const Text("Video"),
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> videoPlayer()));
                         },
                       ),
                     ],
@@ -216,7 +232,7 @@ class _homePageState extends State<homePage> {
 
                   stream: FirebaseFirestore.instance
                           .collection('product')
-                          .snapshots(),//snapshot returns a stream, which is emits every times the data changes
+                          .snapshots(),//snapshot returns a stream, which is emits every times the data changes in the data base
                   //error handling and loading screen
                   builder: (context, snapshot) {
 
@@ -234,8 +250,7 @@ class _homePageState extends State<homePage> {
                     // build grid
                     return GridView.builder(
                       padding: const EdgeInsets.all(10),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 10,
                             crossAxisSpacing: 10,
@@ -279,7 +294,7 @@ class _homePageState extends State<homePage> {
                                     Text(
                                       data['name'] ?? "No Name",
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.bold,color: Colors.white
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text("Price: NRs .${data['price'] ?? 'N/A'}"),

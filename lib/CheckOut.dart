@@ -91,7 +91,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     }
   }
-
   Future<void> generateAndDownloadPDF() async {
     final pdf = pw.Document();
     final formatter = DateFormat('dd-MM-yyyy hh:mm a');

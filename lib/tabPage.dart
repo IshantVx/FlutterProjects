@@ -29,7 +29,7 @@ class _TabpageState extends State<Tabpage> {
   final List<Widget> pages = [
     homePage(),
     CartPage(),
-    Profilepage(),
+    ProfilePage(),
     SettingPage(),
   ];
   void _onTabTaps(int index) {

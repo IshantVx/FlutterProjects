@@ -1,9 +1,16 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:newflutterproject/HomePage.dart';
 import 'package:newflutterproject/SignUpPage.dart';
 import 'package:newflutterproject/tabPage.dart';
+import 'package:newflutterproject/utils/constants/images_strings.dart';
+import 'package:newflutterproject/utils/constants/text_strings.dart';
+import 'package:newflutterproject/utils/helpers/helper_function.dart';
 
 class LonginScreen extends StatefulWidget {
   const LonginScreen({super.key});
@@ -11,13 +18,60 @@ class LonginScreen extends StatefulWidget {
   @override
   State<LonginScreen> createState() => _LonginScreenState();
 }
-
+List<BiometricType> _availableBiometrics = [];
+bool _canCheckBiometrics = false;
 class _LonginScreenState extends State<LonginScreen> {
   //Missing concrete implementation of 'State.build'.
 
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final LocalAuthentication auth = LocalAuthentication();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _obscure = true;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'profile',
+    ],
+    signInOption: SignInOption.standard,
+  );
+
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      GoogleSignInAccount? googleUser = _googleSignIn.currentUser;
+      googleUser ??= await _googleSignIn.signIn();
+      if (googleUser == null) {
+        log("Google sign-in was cancelled by the user.");
+        return null;
+      }
+      log("Google User Selected:");
+      log("Email: ${googleUser.email}");
+      log("Display Name: ${googleUser.displayName}");
+      log("ID: ${googleUser.id}");
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final user = userCredential.user;
+      if (user != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> Tabpage()));
+        log("Firebase User Info:");
+        log("UID: ${user.uid}");
+        log("Email: ${user.email}");
+        log("Name: ${user.displayName}");
+        log("Photo URL: ${user.photoURL}");
+      }
+      return userCredential;
+    } catch (e, stacktrace) {
+      print("Google Sign-In Error: $e");
+      print("StackTrace: $stacktrace");
+      Fluttertoast.showToast(msg: "Invalid user credential $e" );
+
+    }
+  }
 
   // Future postLogin() async {
   //
@@ -59,6 +113,23 @@ class _LonginScreenState extends State<LonginScreen> {
     userNameController.dispose();
     passwordController.dispose();
   }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _checkBiometrics();
+  }
+  //checking biometrics
+  Future<void> _checkBiometrics() async {
+    try {
+      _canCheckBiometrics = await auth.canCheckBiometrics;
+      _availableBiometrics = await auth.getAvailableBiometrics();
+      log("Available Biometrics: $_availableBiometrics");
+    } on PlatformException catch (e) {
+      debugPrint("Biometric error: $e");
+    }
+    setState(() {});
+  }
 
   Future<void> loginUserWithEmailAndPassword() async {
     if (userNameController.text.isEmpty || passwordController.text.isEmpty) {
@@ -79,8 +150,40 @@ class _LonginScreenState extends State<LonginScreen> {
     }
   }
 
+  Future<void> _authenticateWithBiometrics() async {
+    try {
+      bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Please authenticate to login',
+        options: const AuthenticationOptions(
+          biometricOnly: false,
+          stickyAuth: true,
+        ),
+      );
+      if(didAuthenticate){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> homePage()));
+      }else{
+        Fluttertoast.showToast(msg: "Wrong credential");
+      }
+    } on PlatformException catch (e) {
+      if (e.code == 'LockedOut') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Too many failed attempts. Please try again in 30 seconds.",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        debugPrint(e.toString());
+      }
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    final dark = THelperFunction.isDarkMode(context);
     return SafeArea(
       child: Scaffold(
         body: Padding(
@@ -88,11 +191,15 @@ class _LonginScreenState extends State<LonginScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 69),
-                Text(
-                  "Welcome to Facebook",
-                  style: TextStyle(fontSize: 30, color: Colors.blueAccent),
+                Column(
+                  children: [
+                    Image(image: AssetImage(dark ? IImages.lightAppLogo : IImages.darkAppLogo))
+                  ]
                 ),
+                SizedBox(height: 69),
+                Text(ITextStrings.homeAppBarTitle , style: Theme.of(context).textTheme.headlineMedium,
+                ),
+
                 SizedBox(height: 25),
                 Text(
                   "Please Enter your login details",
@@ -152,6 +259,7 @@ class _LonginScreenState extends State<LonginScreen> {
                       },
                       child: Text("Login"),
                     ),
+                    IconButton(onPressed: _authenticateWithBiometrics, icon: Icon(Icons.fingerprint))
                   ],
                 ),
                 SizedBox(height: 20),
@@ -164,7 +272,42 @@ class _LonginScreenState extends State<LonginScreen> {
                   },
                   child: Center(child: Text("New user")),
                 ),
-              ],
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    setState(() {
+
+                    });
+
+                    UserCredential? userCredential = await signInWithGoogle();
+
+                    if (userCredential != null) {
+                      // Success logic
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Google Sign-In failed. Please try again.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                      );
+                    }
+                  },
+                  label: const Text("Sign in with Google"),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.grey),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                ),
+              ),
+            ),
+
+
+            ],
             ),
           ),
         ),

@@ -15,6 +15,7 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+// this function update the qty
   Future<void> updateQty(String docId, int qty) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
@@ -29,7 +30,7 @@ class _CartPageState extends State<CartPage> {
 
   Future<void> clearCart() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
+    if (uid != null){
       final cartCollection = FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -125,6 +126,7 @@ class _CartPageState extends State<CartPage> {
                   title: const Text("Clear Cart"),
                   content: const Text("Remove all items from cart that are not yet checked out?"),
                   actions: [
+
                     TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
                     ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text("Clear")),
                   ],

@@ -32,11 +32,7 @@ class MyApp extends StatelessWidget {
       publicKey: "test_public_key_5c5fa086bb704a54b1efd924a2acb036",
       builder: ( context, e){
         return MaterialApp(
-          themeMode: ThemeMode.system,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-
-
+          //themeMode: themeProvider,
           navigatorKey: e,
           supportedLocales: const [
             Locale('en', 'US'),
@@ -49,7 +45,7 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           // theme: ThemeData.light(),
           // darkTheme: ThemeData.dark(),
-          // themeMode: themeProvider.themeMode,
+           themeMode: themeProvider.themeMode,
           home: StreamBuilder(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, asyncSnapshot) {
